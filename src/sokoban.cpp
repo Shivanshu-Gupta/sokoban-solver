@@ -33,17 +33,12 @@ optional<SokobanState> SokobanState::doMove(Move move) {
     const Coord &diff = moves[move];
     Coord nextPos = pos + diff;
     Coord next2Pos = pos + 2 * diff;
-    if(b->board[nextPos.x][nextPos.y] == '#') return nullopt;
-    if(box_adj[nextPos.x].find(nextPos.y) != box_adj[nextPos.x].end()) {
-        // there's a box in the next position
-        if(b->board[(nextPos + diff).x][(nextPos + diff).y] == '#') {
-            // wall after the box => can't move
-            return nullopt;
-        }
-        if(box_adj[next2Pos.x].find(next2Pos.y) != box_adj[next2Pos.x].end()) {
-            // two consecutive boxes => can't move
-            return nullopt;
-        }
+
+    if(!inBounds(nextPos) || isWall(nextPos)) return nullopt;
+    if(isBox(nextPos)) {    // there's a box in the next position
+        // wall or another box after the box => can't move
+        if(isWall(next2Pos) || isBox(next2Pos)) return nullopt;
+
         SokobanState newState(*this);
         newState.pos = nextPos;
         newState.box_adj[nextPos.x].erase(nextPos.y);
@@ -55,26 +50,6 @@ optional<SokobanState> SokobanState::doMove(Move move) {
     return newState;
 }
 
-bool SokobanState::isValidMove(Move move) {
-    SokobanBoard*& b = board;
-    const Coord &diff = moves[move];
-    Coord nextPos = pos + diff;
-    Coord next2Pos = pos + 2 * diff;
-    if(b->board[nextPos.x][nextPos.y] == '#') return false;
-    if(box_adj[nextPos.x].find(nextPos.y) != box_adj[nextPos.x].end()) {
-        // there's a box in the next position
-        if(b->board[(nextPos + diff).x][(nextPos + diff).y] == '#') {
-            // wall after the box => can't move
-            return false;
-        }
-        if(box_adj[next2Pos.x].find(next2Pos.y) != box_adj[next2Pos.x].end()) {
-            // two consecutive boxes => can't move
-            return false;
-        }
-    }
-    return true;
-}
-
 void SokobanState::loadInputFile(const string &inputPath) {
     board = new SokobanBoard;
     SokobanBoard*& b = board;
@@ -82,20 +57,16 @@ void SokobanState::loadInputFile(const string &inputPath) {
 
     fin >> b->n_cols >> b->n_rows;
 
-    b->walls = readCoordsArray(fin);
-
-    boxes = readCoordsArray(fin);
-
-    b->goals = readCoordsArray(fin);
+    auto walls = readCoordsArray(fin);
+    auto boxes = readCoordsArray(fin);
+    auto goals = readCoordsArray(fin);
 
     pos = readCoords(fin);
 
     b->board.resize(b->n_rows, string(b->n_cols, ' '));
-    b->wall_adj.resize(b->n_rows);
     box_adj.resize(b->n_rows);
 
-    for(auto &[x, y]: b->walls) {
-        b->wall_adj[x].insert(y);
+    for(auto &[x, y]: walls) {
         b->board[x][y] = '#';
     }
 
@@ -108,11 +79,12 @@ void SokobanState::loadInputFile(const string &inputPath) {
     assert(b->board[pos.x][pos.y] == ' ');
     b->board[pos.x][pos.y] = '@';
 
-    for(auto &[x, y]: b->goals) {
-        if(b->board[x][y] == ' ') b->board[x][y] = '.';
-        else if(b->board[x][y] == '$') b->board[x][y] = '*';
-        else if(b->board[x][y] == '@') b->board[x][y] = '+';
-        else throw "invalid board";
+    for(auto &[x, y]: goals) {
+        if(b->board[x][y] == ' ' | b->board[x][y] == '$' | b->board[x][y] == '@') {
+            if(b->board[x][y] == ' ') b->board[x][y] = '.';
+            else if(b->board[x][y] == '$') b->board[x][y] = '*';
+            else if(b->board[x][y] == '@') b->board[x][y] = '+';
+        } else throw "invalid board";
     }
 }
 
@@ -124,22 +96,15 @@ void SokobanState::loadBoardFile(const string &inputPath) {
     int x = 0;
     while(getline(fin, l)) {
         b->board.push_back(l);
-        b->wall_adj.emplace_back();
         box_adj.emplace_back();
         int y = 0;
-        for(auto ch: l) {
-            if(ch == '#') {
-                b->walls.emplace_back(x, y);
-                b->wall_adj.back().insert(y);
-            }
-            if(ch == '$' || ch == '*') {
-                boxes.emplace_back(x, y);
-                box_adj.back().insert(y);
-            }
-            if(ch == '.' || ch == '*' || ch == '+') b->goals.emplace_back(x, y);
-            if(ch == '@' || ch == '+') {
-                tie(pos.x, pos.y) = {x, y};
-//                cout << pos.x << ' ' << pos.y << endl;
+        for(auto &ch: b->board.back()) {
+            switch(ch) {
+                case '$': box_adj.back().insert(y); ch = ' '; break;
+                case '*': box_adj.back().insert(y); ch = '.'; break;
+                case '@': pos = Coord{x, y}; ch = ' '; break;
+                case '+': pos = Coord{x, y}; ch = '.'; break;
+                default: break;
             }
             y++;
         }
@@ -158,7 +123,6 @@ void SokobanState::outputBoard(ostream &out) {
             else l[y] = '$';
         }
         if(x == pos.x) {
-//            cout << x << endl;
             if(l[pos.y] == '.') l[pos.y] = '+';
             else l[pos.y] = '@';
         }

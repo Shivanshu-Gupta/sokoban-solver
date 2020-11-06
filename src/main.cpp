@@ -15,7 +15,11 @@ int main() {
     state.loadBoardFile("../samples/input01.txt");
     state.outputBoard(cout);
     for(Move m: {U, D, L, R}) {
-        if(state.isValidMove(m)) cout << move_names[m] << ' ';
+        auto nextState = state.doMove(m);
+        if (nextState.has_value()) {
+            cout << move_names[m] << ':' << endl;
+            nextState->outputBoard(cout);
+        }
     }
     cout << endl;
 }

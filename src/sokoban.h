@@ -24,18 +24,29 @@ enum Move {
 struct SokobanBoard {
     int n_rows, n_cols;
     vector<string> board;
-    vector<Coord> walls, goals;
-    vector<unordered_set<int>> wall_adj;
 };
 
 struct SokobanState {
     SokobanBoard* board;
-    vector<Coord> boxes;
     vector<unordered_set<int>> box_adj;
     Coord pos;
 
-    bool isValidMove(Move move);
+    inline bool isWall(Coord p) { return board->board[p.x][p.y] == '#'; }
+    inline bool isGoal(Coord p) {
+        return board->board[p.x][p.y] == '.'
+            || board->board[p.x][p.y] == '*'
+            || board->board[p.x][p.y] == '+';
+    }
+    inline bool isBox(Coord p) { return box_adj[p.x].contains(p.y); }
+    inline bool isPos(Coord p) { return pos == p; }
+
+    inline bool inBounds(Coord p) {
+        return 0 <= p.x && p.x < board->n_rows
+            && 0 <= p.y && p.y < board->n_cols;
+    }
+
     optional<SokobanState> doMove(Move move);
+    inline bool isValidMove(Move move) { return doMove(move).has_value(); };
 
     void loadInputFile(const string &inputPath);
     void loadBoardFile(const string &inputPath);

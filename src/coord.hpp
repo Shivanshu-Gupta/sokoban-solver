@@ -31,8 +31,8 @@ struct Coord {
         return *this;
     }
 
-    Coord operator+ () const { return {-x, -y}; }
-    Coord operator- () const { return {x, y}; }
+    Coord operator- () const { return {-x, -y}; }
+    Coord operator+ () const { return {x, y}; }
 
     Coord operator+ (const Coord& other) const { return {x + other.x, y + other.y}; }
     Coord operator- (const Coord& other) const { return {x - other.x, y - other.y}; }
