@@ -20,7 +20,17 @@ struct Coord {
 
     Coord(): x(0), y(0) {}
     Coord(const int &x, const int &y) : x(x), y(y) {}
-
+    void print ()
+    {
+        cout<< "("<< x << ", " << y << ")" << endl;
+    }
+    // void output(ostream &out) {
+    //     out<< "("<< x << ", " << y << ")" << endl;
+    // }
+    // void outputToFile(string outputPath) {
+    //     ofstream fout(outputPath);
+    //     output(fout);
+    // }
     explicit Coord(const pair<int, int> &p) {
         x = p.first;
         y = p.second;

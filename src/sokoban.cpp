@@ -4,10 +4,12 @@
 
 #include <iostream>
 #include <vector>
+#include <stack>
 #include <map>
 #include <unordered_set>
 #include <tuple>
 #include <utility>
+#include <cassert>
 #include <fstream>
 #include "coord.hpp"
 #include "sokoban.h"
@@ -27,6 +29,19 @@ unordered_map<Move, string> move_names = {
         {L, "←"},
         {R, "→"},
 };
+
+bool SokobanState::isGoalState() {
+    Coord *curr = new Coord(0,0);
+    for(int i=0;i<board->n_rows;i++) {
+        for(int j=0;j<board->n_cols;j++) {
+            if(isGoal(*curr) && !isBox(*curr)) return false;
+            curr->y += 1;
+        }
+        curr->x += 1;
+        curr->y = 0;
+    }
+    return true;
+}
 
 optional<SokobanState> SokobanState::doMove(Move move) {
     SokobanBoard*& b = board;
@@ -49,6 +64,75 @@ optional<SokobanState> SokobanState::doMove(Move move) {
     newState.pos = nextPos;
     return newState;
 }
+
+optional<SokobanNode> SokobanNode::doMove(Move move) {
+    SokobanNode newNode;
+    auto newState = state->doMove(move);
+    if(newState.has_value()) {
+        SokobanState newNodeState(newState.value());
+        cout<<"doMoveNode";(newNodeState.pos).print();
+        newNode.state = &newNodeState;
+        cout<<"doMoveNode";((newNode.state)->pos).print();
+        // working correctly till this place.
+        // But the values returned are not the same
+        newNode.parentNode = this;
+        newNode.move = move;
+        newNode.depth = depth + 1;
+        // update pathcost also
+
+        return newNode;
+    }
+    return nullopt;
+}
+
+vector<SokobanNode> SokobanNode::getChildrenNode() {
+    vector<SokobanNode> children;
+    for(Move m: {U, D, L, R}) {
+        auto childNode = this->doMove(m);
+        if (childNode.has_value()) {
+            children.push_back(childNode.value());
+        }
+    }
+    return children;
+}
+
+optional<SokobanNode> SokobanNode::depthLimitedSearch(int limit) {
+    stack<SokobanNode> frontier;
+    frontier.push(*this);
+    SokobanNode goalNode;
+    cutoff = false;
+    while(!frontier.empty()) {
+        SokobanNode current = frontier.top();
+        frontier.pop();
+        if((current.state)->isGoalState()) {
+            return current;
+        }
+        if(limit >=0 && current.depth > limit) {
+            cutoff = true;
+            return goalNode;
+        }
+        // else {should check for cycles}
+        for(auto childnode : current.getChildrenNode()) {
+            frontier.push(childnode);
+        }
+    }
+    return nullopt;
+}
+
+optional<SokobanNode> SokobanNode::depthFirstSearch() {
+    return (this->depthLimitedSearch(-1));
+}
+
+optional<SokobanNode> SokobanNode::iterativeDeepeningSearch() {
+    int limit=0;
+    optional<SokobanNode> result;
+    do {
+        result = this->depthLimitedSearch(limit);
+        limit++;
+    } while(cutoff); // continue if cutoff or solution not found
+    return result;
+}
+
 
 void SokobanState::loadInputFile(const string &inputPath) {
     board = new SokobanBoard;
@@ -77,7 +161,8 @@ void SokobanState::loadInputFile(const string &inputPath) {
     }
 
     assert(b->board[pos.x][pos.y] == ' ');
-    b->board[pos.x][pos.y] = '@';
+    // b->board[pos.x][pos.y] = '@';    // Chenged this, since pos is already stored
+    b->board[pos.x][pos.y] = ' ';
 
     for(auto &[x, y]: goals) {
         if(b->board[x][y] == ' ' | b->board[x][y] == '$' | b->board[x][y] == '@') {
@@ -116,8 +201,9 @@ void SokobanState::loadBoardFile(const string &inputPath) {
 
 void SokobanState::outputBoard(ostream &out) {
     SokobanBoard*& b = board;
+    cout<<"hello\n"; pos.print();
     int x = 0;
-    for(auto l: b->board) {
+    for(string l: b->board) {
         for(int y: box_adj[x]) {
             if (l[y] == '.') l[y] = '*';
             else l[y] = '$';

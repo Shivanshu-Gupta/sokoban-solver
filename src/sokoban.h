@@ -27,9 +27,9 @@ struct SokobanBoard {
 };
 
 struct SokobanState {
+    Coord pos;
     SokobanBoard* board;
     vector<unordered_set<int>> box_adj;
-    Coord pos;
 
     inline bool isWall(Coord p) { return board->board[p.x][p.y] == '#'; }
     inline bool isGoal(Coord p) {
@@ -55,16 +55,25 @@ struct SokobanState {
         ofstream fout(outputPath);
         outputBoard(fout);
     }
+    bool isGoalState();
     static pair<int, int> readCoords(ifstream &fin);
     static vector<Coord> readCoordsArray(ifstream &fin);
 };
 
 struct SokobanNode {
-    SokobanState* state;
-
+    SokobanState* state = NULL;
+    SokobanNode* parentNode = NULL;     // parent node of current node
+    Move move;                          // move parent has taken to reach here
+    double pathCost = 0;                    // path cost from start node to this node
+    int depth = 0;                          // depth of current node
+    bool cutoff = true;
     optional<SokobanNode> doMove(Move move);
-//    vector<SokobanNode> getChildren();
+    vector<SokobanNode> getChildrenNode();
+    // Define methods for each algorithm
+    optional<SokobanNode> depthLimitedSearch(int limit);
+    optional<SokobanNode> depthFirstSearch();
+    optional<SokobanNode> iterativeDeepeningSearch();
 };
 
-
+    
 #endif //SOKOBAN_SOLVER_SOKOBAN_H
