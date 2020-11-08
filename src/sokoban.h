@@ -24,6 +24,8 @@ enum Move {
 struct SokobanBoard {
     int n_rows, n_cols;
     vector<string> board;
+    vector<unordered_set<int>> goal_adj;
+    vector<unordered_set<int>> wall_adj;
 };
 
 struct SokobanState {
@@ -63,7 +65,7 @@ struct SokobanState {
 struct SokobanNode {
     SokobanState* state = NULL;
     SokobanNode* parentNode = NULL;     // parent node of current node
-    Move move;                          // move parent has taken to reach here
+    Move parentMove;                          // parentMove parent has taken to reach here
     double pathCost = 0;                    // path cost from start node to this node
     int depth = 0;                          // depth of current node
     bool cutoff = true;

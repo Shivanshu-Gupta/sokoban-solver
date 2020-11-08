@@ -10,7 +10,6 @@
 #include <tuple>
 #include <utility>
 #include <cassert>
-#include <fstream>
 #include "coord.hpp"
 #include "sokoban.h"
 
@@ -31,14 +30,9 @@ unordered_map<Move, string> move_names = {
 };
 
 bool SokobanState::isGoalState() {
-    Coord *curr = new Coord(0,0);
-    for(int i=0;i<board->n_rows;i++) {
-        for(int j=0;j<board->n_cols;j++) {
-            if(isGoal(*curr) && !isBox(*curr)) return false;
-            curr->y += 1;
-        }
-        curr->x += 1;
-        curr->y = 0;
+    SokobanBoard*& b = board;
+    for(int x = 0; x < b->n_rows; x++) {
+        if(b->goal_adj[x] == box_adj[x]) return false;
     }
     return true;
 }
@@ -69,14 +63,10 @@ optional<SokobanNode> SokobanNode::doMove(Move move) {
     SokobanNode newNode;
     auto newState = state->doMove(move);
     if(newState.has_value()) {
-        SokobanState newNodeState(newState.value());
-        cout<<"doMoveNode";(newNodeState.pos).print();
-        newNode.state = &newNodeState;
-        cout<<"doMoveNode";((newNode.state)->pos).print();
-        // working correctly till this place.
-        // But the values returned are not the same
+        auto *newNodeState = new SokobanState(newState.value());
+        newNode.state = newNodeState;
         newNode.parentNode = this;
-        newNode.move = move;
+        newNode.parentMove = move;
         newNode.depth = depth + 1;
         // update pathcost also
 
@@ -148,9 +138,12 @@ void SokobanState::loadInputFile(const string &inputPath) {
     pos = readCoords(fin);
 
     b->board.resize(b->n_rows, string(b->n_cols, ' '));
+    b->wall_adj.resize(b->n_rows);
+    b->goal_adj.resize(b->n_rows);
     box_adj.resize(b->n_rows);
 
     for(auto &[x, y]: walls) {
+        b->wall_adj[x].insert(y);
         b->board[x][y] = '#';
     }
 
@@ -165,10 +158,11 @@ void SokobanState::loadInputFile(const string &inputPath) {
     b->board[pos.x][pos.y] = ' ';
 
     for(auto &[x, y]: goals) {
-        if(b->board[x][y] == ' ' | b->board[x][y] == '$' | b->board[x][y] == '@') {
+        if(b->board[x][y] == ' ' || b->board[x][y] == '$' || b->board[x][y] == '@') {
             if(b->board[x][y] == ' ') b->board[x][y] = '.';
             else if(b->board[x][y] == '$') b->board[x][y] = '*';
             else if(b->board[x][y] == '@') b->board[x][y] = '+';
+            b->goal_adj[x].insert(y);
         } else throw "invalid board";
     }
 }
@@ -181,14 +175,18 @@ void SokobanState::loadBoardFile(const string &inputPath) {
     int x = 0;
     while(getline(fin, l)) {
         b->board.push_back(l);
+        b->wall_adj.emplace_back();
+        b->goal_adj.emplace_back();
         box_adj.emplace_back();
+
         int y = 0;
         for(auto &ch: b->board.back()) {
             switch(ch) {
+                case '#': b->wall_adj.back().insert(y); break;
                 case '$': box_adj.back().insert(y); ch = ' '; break;
-                case '*': box_adj.back().insert(y); ch = '.'; break;
+                case '*': box_adj.back().insert(y); b->goal_adj.back().insert(y); ch = '.'; break;
                 case '@': pos = Coord{x, y}; ch = ' '; break;
-                case '+': pos = Coord{x, y}; ch = '.'; break;
+                case '+': pos = Coord{x, y}; b->goal_adj.back().insert(y); ch = '.'; break;
                 default: break;
             }
             y++;
@@ -201,7 +199,6 @@ void SokobanState::loadBoardFile(const string &inputPath) {
 
 void SokobanState::outputBoard(ostream &out) {
     SokobanBoard*& b = board;
-    cout<<"hello\n"; pos.print();
     int x = 0;
     for(string l: b->board) {
         for(int y: box_adj[x]) {

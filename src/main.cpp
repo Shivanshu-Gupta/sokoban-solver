@@ -9,13 +9,13 @@ extern unordered_map<Move, string> move_names;
 int main() {
     SokobanState state;
     // state.loadInputFile("../samples/sokoban00.txt");
-    // state.loadInputFile("../samples/sokoban01.txt");
+     state.loadInputFile("../samples/sokoban01.txt");
     // state.outputBoard(cout);
     // cout << endl;
     // state.pos.print();
 
     // state.loadBoardFile("../samples/input00.txt");
-    state.loadBoardFile("../samples/input01.txt");
+//    state.loadBoardFile("../samples/input01.txt");
     // state.outputBoard(cout);
     // cout << endl;
 
@@ -37,14 +37,14 @@ int main() {
         auto nextNode = initialNode.doMove(m);
         if (nextNode.has_value()) {
             auto node = nextNode.value();
-            cout << move_names[node.move] << ':' << endl;
+            cout << move_names[node.parentMove] << ':' << endl;
             cout << node.depth << ':' << endl;
 
             //----------------------------------
             // The following lines are not working properly
             // Need to check the doMove function for SokobanNode
-            ((node.state)->pos).print();
-            // (node.state)->outputBoard(cout);
+            node.state->pos.print();
+            node.state->outputBoard(cout);
             // cout << ((nextNode.value()).state)->pos.x << ':' << endl;
             //----------------------------------
         }
@@ -66,7 +66,7 @@ int main() {
     //     (sNode->state)->outputBoard(cout);
     //     vector<Move> pathToGoal;
     //     do {
-    //         pathToGoal.push_back(sNode->move);
+    //         pathToGoal.push_back(sNode->parentMove);
     //         sNode = sNode->parentNode;
     //     } while(sNode != NULL);
     //     reverse(pathToGoal.begin(),pathToGoal.end());
