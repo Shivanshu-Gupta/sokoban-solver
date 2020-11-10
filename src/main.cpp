@@ -60,21 +60,25 @@ int main() {
     // auto nextNode = initialNode->depthFirstSearch();
     // auto nextNode = initialNode->iterativeDeepeningSearch();
     
-    // Print the solution
-    // if (nextNode.has_value()) {
-    //     SokobanNode* sNode = (nextNode.value());
-    //     (sNode->state)->outputBoard(cout);
-    //     vector<Move> pathToGoal;
-    //     do {
-    //         pathToGoal.push_back(sNode->parentMove);
-    //         sNode = sNode->parentNode;
-    //     } while(sNode != NULL);
-    //     reverse(pathToGoal.begin(),pathToGoal.end());
-    //     for(Move m : pathToGoal)
-    //     cout << move_names[m] << ':' << endl;
-    // }
-    // else { // No solution found
-    //     cout << "The algorithm couldn't find the solution\n";
-    // }
+    // Run BFS and UCS on the initial node
+    auto nextNode = initialNode.breadthFirstSearch();
+    // auto nextNode = initialNode.uniformCostSearch();	  
+    
+    //Print the solution
+    if (nextNode.has_value()) {
+        SokobanNode* sNode = &(nextNode.value());
+        (sNode->state)->outputBoard(cout);
+        vector<Move> pathToGoal;
+        do {
+            pathToGoal.push_back(sNode->parentMove);
+            sNode = sNode->parentNode;
+        } while(sNode != NULL);
+        reverse(pathToGoal.begin(),pathToGoal.end());
+        for(Move m : pathToGoal)
+        cout << move_names[m] << ':' << endl;
+    }
+    else { // No solution found
+        cout << "The algorithm couldn't find the solution\n";
+    } 
 }
 

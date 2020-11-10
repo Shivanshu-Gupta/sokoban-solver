@@ -1,4 +1,4 @@
-//
+    //
 // Created by Shivanshu Gupta on 31/10/20.
 //
 
@@ -75,7 +75,16 @@ struct SokobanNode {
     optional<SokobanNode> depthLimitedSearch(int limit);
     optional<SokobanNode> depthFirstSearch();
     optional<SokobanNode> iterativeDeepeningSearch();
+    optional<SokobanNode> breadthFirstSearch();
+    optional<SokobanNode> uniformCostSearch();
 };
 
+struct Compare
+{
+    bool operator()(const SokobanNode& a, const SokobanNode& b)
+    {
+        return (a.pathCost > b.pathCost);
+    }
+};
     
 #endif //SOKOBAN_SOLVER_SOKOBAN_H

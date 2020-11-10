@@ -5,6 +5,7 @@
 #include <iostream>
 #include <vector>
 #include <stack>
+#include <queue>
 #include <map>
 #include <unordered_set>
 #include <tuple>
@@ -61,7 +62,7 @@ optional<SokobanState> SokobanState::doMove(Move move) {
 
 optional<SokobanNode> SokobanNode::doMove(Move move) {
     SokobanNode newNode;
-    auto newState = state->doMove(move);
+    auto newState = state->doMove(move); 
     if(newState.has_value()) {
         auto *newNodeState = new SokobanState(newState.value());
         newNode.state = newNodeState;
@@ -69,6 +70,7 @@ optional<SokobanNode> SokobanNode::doMove(Move move) {
         newNode.parentMove = move;
         newNode.depth = depth + 1;
         // update pathcost also
+        newNode.pathCost++;
 
         return newNode;
     }
@@ -121,6 +123,60 @@ optional<SokobanNode> SokobanNode::iterativeDeepeningSearch() {
         limit++;
     } while(cutoff); // continue if cutoff or solution not found
     return result;
+}
+
+//Breadth First Search(Tree Search) [Gets Killed as no bound on termination]
+// To Do: 1. Metric to detect failure states(from where no solution is possible), 
+//        2. Need to implement backtracking when failure occurs.
+//        3. Find best move for a given state
+optional<SokobanNode> SokobanNode::breadthFirstSearch(){
+    queue<SokobanNode> frontier;
+    if(((*this).state)->isGoalState())
+    	return (*this);
+    else
+    	frontier.push(*this);
+    	
+    while(!frontier.empty()){
+    	//cout << frontier.size() << endl;
+    	SokobanNode current_node = frontier.front();
+    	frontier.pop();
+    	    	 
+    	for(auto child_node : current_node.getChildrenNode()){
+           //cout << "Depth : " << child_node.depth << endl;
+    	    if((child_node.state)->isGoalState())
+    	        return child_node;
+    	    else
+    	        //To do: Check if child_node has already been encountered before using parent_node pointers
+    	        //If present, return without doing anything. Else, push it on the queue. 
+    	        frontier.push(child_node);
+    	}
+    	    
+    }
+    return nullopt;
+
+}
+
+//Uniform Cost Search
+optional<SokobanNode> SokobanNode::uniformCostSearch(){
+    priority_queue<SokobanNode, vector<SokobanNode>, Compare> frontier;
+    frontier.push(*this);
+    
+    while(!frontier.empty()){
+        SokobanNode current_node = frontier.top();
+        frontier.pop();
+        
+        if((current_node.state)->isGoalState()) {
+            return current_node;
+        }
+                
+        for(auto child_node : current_node.getChildrenNode()){
+            // if(child_node.state != any element.state in frontier)
+            // Use Hashing to store states
+            // To Do: Push Hash states to an unordered_set  
+            frontier.push(child_node);        
+        }
+    }
+    return nullopt;
 }
 
 
