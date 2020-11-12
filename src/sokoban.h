@@ -1,4 +1,4 @@
-//
+    //
 // Created by Shivanshu Gupta on 31/10/20.
 //
 
@@ -69,13 +69,24 @@ struct SokobanNode {
     double pathCost = 0;                    // path cost from start node to this node
     int depth = 0;                          // depth of current node
     bool cutoff = true;
+    bool goalFound = false;;
+    bool startState = false;
     optional<SokobanNode> doMove(Move move);
     vector<SokobanNode> getChildrenNode();
     // Define methods for each algorithm
     optional<SokobanNode> depthLimitedSearch(int limit);
     optional<SokobanNode> depthFirstSearch();
     optional<SokobanNode> iterativeDeepeningSearch();
+    optional<SokobanNode> breadthFirstSearch();
+    optional<SokobanNode> uniformCostSearch();
 };
 
+struct Compare
+{
+    bool operator()(const SokobanNode& a, const SokobanNode& b)
+    {
+        return (a.pathCost > b.pathCost);
+    }
+};
     
 #endif //SOKOBAN_SOLVER_SOKOBAN_H
