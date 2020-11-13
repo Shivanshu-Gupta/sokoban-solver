@@ -71,6 +71,7 @@ struct Coord {
     friend Coord operator/ (Coord lhs, const int& val) { return lhs /= val; }
 
     friend bool operator== (const Coord& lhs, const Coord& rhs) { return lhs.x == rhs.x && lhs.y == rhs.y; }
+    friend bool operator!= (const Coord& lhs, const Coord& rhs) { return lhs.x != rhs.x || lhs.y != rhs.y; }
 };
 
 #endif //SOKOBAN_SOLVER_COORD_HPP

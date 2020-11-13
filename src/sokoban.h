@@ -64,29 +64,21 @@ struct SokobanState {
 
 struct SokobanNode {
     SokobanState* state = NULL;
-    SokobanNode* parentNode = NULL;     // parent node of current node
-    Move parentMove;                          // parentMove parent has taken to reach here
-    double pathCost = 0;                    // path cost from start node to this node
+    SokobanNode* parentNode = NULL;         // parent node of current node
+    Move parentMove;                        // parentMove parent has taken to reach here
     int depth = 0;                          // depth of current node
-    bool cutoff = true;
-    bool goalFound = false;;
-    bool startState = false;
-    optional<SokobanNode> doMove(Move move);
-    vector<SokobanNode> getChildrenNode();
-    // Define methods for each algorithm
-    optional<SokobanNode> depthLimitedSearch(int limit);
-    optional<SokobanNode> depthFirstSearch();
-    optional<SokobanNode> iterativeDeepeningSearch();
-    optional<SokobanNode> breadthFirstSearch();
-    optional<SokobanNode> uniformCostSearch();
+    double pathCost = 0;                    // path cost from start node to this node
+    bool startNode = false;                 // root Node
+    optional<SokobanNode*> doMove(Move move);// returns Node reached via move, if move is possible
+    vector<SokobanNode*> getChildrenNode();  // list of all successor nodes
 };
 
 struct Compare
 {
-    bool operator()(const SokobanNode& a, const SokobanNode& b)
+    bool operator()(SokobanNode* a, SokobanNode* b)
     {
-        return (a.pathCost > b.pathCost);
+        return (a->pathCost > b->pathCost);
     }
 };
-    
+
 #endif //SOKOBAN_SOLVER_SOKOBAN_H
