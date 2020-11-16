@@ -8,6 +8,7 @@
 #include <iostream>
 #include <vector>
 #include <unordered_set>
+#include <set>
 #include <unordered_map>
 #include <tuple>
 #include <utility>
@@ -24,14 +25,14 @@ enum Move {
 struct SokobanBoard {
     int n_rows, n_cols;
     vector<string> board;
-    vector<unordered_set<int>> goal_adj;
+    vector<set<int>> goal_adj;
     vector<unordered_set<int>> wall_adj;
 };
 
 struct SokobanState {
     Coord pos;
     SokobanBoard* board;
-    vector<unordered_set<int>> box_adj;
+    vector<set<int>> box_adj;
 
     inline bool isWall(Coord p) { return board->board[p.x][p.y] == '#'; }
     inline bool isGoal(Coord p) {
@@ -49,17 +50,25 @@ struct SokobanState {
 
     optional<SokobanState> doMove(Move move);
     inline bool isValidMove(Move move) { return doMove(move).has_value(); };
+    bool isGoalState();
 
+    // Input
     void loadInputFile(const string &inputPath);
     void loadBoardFile(const string &inputPath);
+    static pair<int, int> readCoords(ifstream &fin);
+    static vector<Coord> readCoordsArray(ifstream &fin);
+
+    // Output
     void outputBoard(ostream &out);
-    void outputBoardToFile(string outputPath) {
+    inline void printBoard() { outputBoard(cout); }
+    inline void outputBoardToFile(string outputPath) {
         ofstream fout(outputPath);
         outputBoard(fout);
     }
-    bool isGoalState();
-    static pair<int, int> readCoords(ifstream &fin);
-    static vector<Coord> readCoordsArray(ifstream &fin);
+
+    friend bool operator== (const SokobanState& lhs, const SokobanState& rhs) {
+        return lhs.pos == rhs.pos && lhs.box_adj == rhs.box_adj;
+    }
 };
 
 struct SokobanNode {
@@ -73,12 +82,35 @@ struct SokobanNode {
     vector<SokobanNode*> getChildrenNode();  // list of all successor nodes
 };
 
-struct Compare
-{
-    bool operator()(SokobanNode* a, SokobanNode* b)
-    {
+struct Compare {
+    bool operator()(SokobanNode* a, SokobanNode* b) {
         return (a->pathCost > b->pathCost);
     }
+};
+
+// Generic hash_combine function
+template <class T>
+inline void hash_combine(std::size_t& seed, const T& v) {
+    hash<T> hasher;
+    seed ^= hasher(v) + 0x9e3779b9 + (seed<<6) + (seed>>2);
+}
+
+// Specialise std::hash for SokobanState
+namespace std {
+    template<>
+    struct hash<SokobanState> {
+        size_t operator()(SokobanState const& s) const noexcept {
+            size_t h = 0;
+            hash_combine(h, s.pos.x);
+            hash_combine(h, s.pos.y);
+            hash_combine(h, ';');
+            for(const set<int>& ys: s.box_adj) {
+                for(const int& y: ys) hash_combine(h, y);
+                hash_combine(h, ';');
+            }
+            return h;
+        }
+    };
 };
 
 #endif //SOKOBAN_SOLVER_SOKOBAN_H

@@ -2,20 +2,37 @@
 // Created by Shivanshu Gupta on 31/10/20.
 //
 
+#include <unordered_set>
+
 #include "sokoban.h"
 #include "algos.hpp"
 
 extern unordered_map<Move, string> move_names;
 
+void hashingExample() {
+    cout << "========================HashingExample========================" << endl;
+    SokobanState state;
+    state.loadBoardFile("../samples/input03.txt");
+    state.printBoard();
+
+    hash<SokobanState> hasher;
+    size_t hash = hasher(state);
+    cout << hash << endl;
+
+    unordered_set<SokobanState> reached;
+    reached.insert(state);
+    for(auto s: reached) s.printBoard();
+    cout << "===============================================================" << endl;
+    cout << endl;
+}
+
 int main() {
+    hashingExample();
+
     SokobanState state;
     // state.loadInputFile("../samples/sokoban00.txt");
-    // state.outputBoard(cout);
-    // state.pos.print();
-
     state.loadBoardFile("../samples/input03.txt");
-    state.outputBoard(cout);
-
+    state.printBoard();
 
     // Initialize the Problem Node
     SokobanNode* initialNode = new SokobanNode();

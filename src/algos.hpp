@@ -160,7 +160,7 @@ bool same_state(SokobanNode* node, SokobanNode* parent)
 {
 	// TODO: update this function once hash is defined
 	if(node->state->pos != parent->state->pos) return false;
-	vector<unordered_set<int>> nodeBoxes = node->state->box_adj, parentBoxes = parent->state->box_adj;
+	vector<set<int>> nodeBoxes = node->state->box_adj, parentBoxes = parent->state->box_adj;
     for(int x = 0; x < node->state->board->n_rows; x++) {
         if(nodeBoxes[x] != parentBoxes[x]) return false;
     }
