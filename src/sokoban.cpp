@@ -39,7 +39,7 @@ bool SokobanState::isGoalState() {
     return y;
 }
 
-optional<SokobanState> SokobanState::doMove(Move move) {
+optional<SokobanState*> SokobanState::doMove(Move move) {
     SokobanBoard*& b = board;
     const Coord &diff = moves[move];
     Coord nextPos = pos + diff;
@@ -51,25 +51,24 @@ optional<SokobanState> SokobanState::doMove(Move move) {
     
         if(isWall(next2Pos) || isBox(next2Pos)) return nullopt;
         
-        SokobanState newState(*this);
-        newState.pos = nextPos;
-        newState.box_adj[nextPos.x].erase(nextPos.y);
-        newState.box_adj[next2Pos.x].insert(next2Pos.y);
-        return newState;
+        SokobanState* nextState = new SokobanState(*this);
+        nextState->pos = nextPos;
+        nextState->box_adj[nextPos.x].erase(nextPos.y);
+        nextState->box_adj[next2Pos.x].insert(next2Pos.y);
+        return nextState;
     }
-    
-    SokobanState newState(*this);
-    newState.pos = nextPos;
-    return newState;
+
+    SokobanState* nextState = new SokobanState(*this);
+    nextState->pos = nextPos;
+    return nextState;
 }
 
 optional<SokobanNode*> SokobanNode::doMove(Move move) {
-    auto newState = state->doMove(move);
-    if(newState.has_value()) {
-        auto *newNodeState = new SokobanState(newState.value());
-        SokobanNode* newNode = new SokobanNode();
+    auto nextState = state->doMove(move);
+    if(nextState.has_value()) {
+        auto* newNode = new SokobanNode();
         newNode->startNode = false;
-        newNode->state = newNodeState;
+        newNode->state = nextState.value();
         newNode->parentNode = this;
         newNode->parentMove = move;
         newNode->depth = depth + 1;
@@ -164,23 +163,6 @@ void SokobanState::loadBoardFile(const string &inputPath) {
     b->n_cols = y;
 }
 
-void SokobanState::outputBoard(ostream &out) {
-    SokobanBoard*& b = board;
-    int x = 0;
-    for(string l: b->board) {
-        for(int y: box_adj[x]) {
-            if (l[y] == '.') l[y] = '*';
-            else l[y] = '$';
-        }
-        if(x == pos.x) {
-            if(l[pos.y] == '.') l[pos.y] = '+';
-            else l[pos.y] = '@';
-        }
-        out << l << endl;
-        x++;
-    }
-}
-
 pair<int, int> SokobanState::readCoords(ifstream &fin) {
     int x, y;
     fin >> x >> y;
@@ -196,4 +178,22 @@ vector<Coord> SokobanState::readCoordsArray(ifstream &fin) {
         else pairs[i/2].x = x - 1;
     }
     return pairs;
+}
+
+ostream &operator<< (ostream &out, const SokobanState &s) {
+    SokobanBoard* b = s.board;
+    int x = 0;
+    for(string l: b->board) {
+        for(int y: s.box_adj[x]) {
+            if (l[y] == '.') l[y] = '*';
+            else l[y] = '$';
+        }
+        if(x == s.pos.x) {
+            if(l[s.pos.y] == '.') l[s.pos.y] = '+';
+            else l[s.pos.y] = '@';
+        }
+        out << l << endl;
+        x++;
+    }
+    return out;
 }

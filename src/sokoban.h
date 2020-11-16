@@ -48,7 +48,7 @@ struct SokobanState {
             && 0 <= p.y && p.y < board->n_cols;
     }
 
-    optional<SokobanState> doMove(Move move);
+    optional<SokobanState*> doMove(Move move);
     inline bool isValidMove(Move move) { return doMove(move).has_value(); };
     bool isGoalState();
 
@@ -58,14 +58,7 @@ struct SokobanState {
     static pair<int, int> readCoords(ifstream &fin);
     static vector<Coord> readCoordsArray(ifstream &fin);
 
-    // Output
-    void outputBoard(ostream &out);
-    inline void printBoard() { outputBoard(cout); }
-    inline void outputBoardToFile(string outputPath) {
-        ofstream fout(outputPath);
-        outputBoard(fout);
-    }
-
+    friend ostream &operator<< (ostream &output, const SokobanState &s);
     friend bool operator== (const SokobanState& lhs, const SokobanState& rhs) {
         return lhs.pos == rhs.pos && lhs.box_adj == rhs.box_adj;
     }
@@ -80,6 +73,10 @@ struct SokobanNode {
     bool startNode = false;                 // root Node
     optional<SokobanNode*> doMove(Move move);// returns Node reached via move, if move is possible
     vector<SokobanNode*> getChildrenNode();  // list of all successor nodes
+
+    ~SokobanNode() {
+        delete state;
+    }
 };
 
 struct Compare {

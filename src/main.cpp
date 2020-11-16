@@ -13,7 +13,7 @@ void hashingExample() {
     cout << "========================HashingExample========================" << endl;
     SokobanState state;
     state.loadBoardFile("../samples/input03.txt");
-    state.printBoard();
+    cout << state;
 
     hash<SokobanState> hasher;
     size_t hash = hasher(state);
@@ -21,7 +21,7 @@ void hashingExample() {
 
     unordered_set<SokobanState> reached;
     reached.insert(state);
-    for(auto s: reached) s.printBoard();
+    for(const auto& s: reached) cout << s;
     cout << "===============================================================" << endl;
     cout << endl;
 }
@@ -32,7 +32,7 @@ int main() {
     SokobanState state;
     // state.loadInputFile("../samples/sokoban00.txt");
     state.loadBoardFile("../samples/input03.txt");
-    state.printBoard();
+    cout << state;
 
     // Initialize the Problem Node
     SokobanNode* initialNode = new SokobanNode();
