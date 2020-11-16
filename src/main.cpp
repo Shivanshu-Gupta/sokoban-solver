@@ -13,7 +13,6 @@ int main() {
     // state.outputBoard(cout);
     // state.pos.print();
 
-    // state.loadBoardFile("../samples/input00.txt");
     state.loadBoardFile("../samples/input03.txt");
     state.outputBoard(cout);
 
@@ -24,7 +23,7 @@ int main() {
     initialNode->startNode = true;
 
     // Start Algorithms here...
-    // auto nextNode = depthLimitedSearch(initialNode, 2);
+    // auto nextNode = depthLimitedSearch(initialNode, 10);
     // auto nextNode = depthFirstSearch(initialNode);
     // auto nextNode = iterativeDeepeningSearch(initialNode);    
     // auto nextNode = breadthFirstSearch(initialNode);

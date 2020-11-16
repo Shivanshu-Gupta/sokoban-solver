@@ -32,12 +32,12 @@ Solution depthLimitedSearch(SokobanNode* node, int limit);
 Solution depthFirstSearch(SokobanNode* node);
 Solution iterativeDeepeningSearch(SokobanNode* node);
 Solution breadthFirstSearch(SokobanNode* node);
-// Solution uniformCostSearch(SokobanNode* Node);
+Solution uniformCostSearch(SokobanNode* node);
 
 // Declare Helper functions
 bool is_cycle(SokobanNode* node);
 bool same_state(SokobanNode* node, SokobanNode* parent);
-// TODO: Hash, A* Heuristics and other helper functions to be added
+// TODO: Hash, A* Heuristics and other helper functions, as needed, to be added
 
 // Define functions for each algorithm
 // TODO: Should update all functions with relevant values of Algorithm & Solution charecteristics 
