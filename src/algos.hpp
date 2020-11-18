@@ -28,11 +28,11 @@ struct Solution {
 };
 
 // Declare functions for each algorithm
-Solution depthLimitedSearch(SokobanNode* node, int limit);
-Solution depthFirstSearch(SokobanNode* node);
-Solution iterativeDeepeningSearch(SokobanNode* node);
-Solution breadthFirstSearch(SokobanNode* node);
-Solution uniformCostSearch(SokobanNode* node);
+Solution depthLimitedSearch(SokobanNode* node, int limit, bool graphSearch);
+Solution depthFirstSearch(SokobanNode* node, bool graphSearch);
+Solution iterativeDeepeningSearch(SokobanNode* node, bool graphSearch);
+Solution breadthFirstSearch(SokobanNode* node, bool graphSearch);
+Solution uniformCostSearch(SokobanNode* node, bool graphSearch);
 
 // Declare Helper functions
 bool is_cycle(SokobanNode* node);
@@ -42,12 +42,16 @@ bool same_state(SokobanNode* node, SokobanNode* parent);
 // Define functions for each algorithm
 // TODO: Should update all functions with relevant values of Algorithm & Solution charecteristics 
 
-Solution depthLimitedSearch(SokobanNode* node, int limit) {
+Solution depthLimitedSearch(SokobanNode* node, int limit = -1, bool graphSearch = false) {
 	// TODO: Destruct pointers
 	Solution solution;
     stack<SokobanNode*> frontier;
+    set< size_t > reached;
     // cout<<" "<<node<<"; Calling from root node : Y/N : " << node->startNode<<endl;
     frontier.push(node);
+    if( graphSearch ) {
+        reached.insert(node->state->hashKey);
+    }
     SokobanNode* current;
     while(!frontier.empty()) {
         current = frontier.top();
@@ -64,8 +68,16 @@ Solution depthLimitedSearch(SokobanNode* node, int limit) {
             continue;
         }
         if (!is_cycle(current)){
-	        for(auto childnode : current->getChildrenNode()) {
-	            frontier.push(childnode);
+	        for(auto child_node : current->getChildrenNode()) {
+                if (graphSearch) {
+                    if (reached.find(child_node->state->hashKey) == reached.end()) {
+                        reached.insert(child_node->state->hashKey);
+                    }
+                    else {
+                        continue;
+                    }
+                }
+	            frontier.push(child_node);
 	        }        	
         }
     }
@@ -73,15 +85,15 @@ Solution depthLimitedSearch(SokobanNode* node, int limit) {
     return solution;
 }
 
-Solution depthFirstSearch(SokobanNode* node) {
-    return (depthLimitedSearch(node,-1));
+Solution depthFirstSearch(SokobanNode* node, bool graphSearch = false) {
+    return (depthLimitedSearch(node,-1, graphSearch));
 }
 
-Solution iterativeDeepeningSearch(SokobanNode* node) {
+Solution iterativeDeepeningSearch(SokobanNode* node, bool graphSearch = false) {
     int limit=0;
     Solution result;
     do {
-        result = depthLimitedSearch(node, limit);
+        result = depthLimitedSearch(node, limit, graphSearch);
         limit++;
     } while(result.cutoff); // continue if cutoff or solution not found
     return result;
@@ -93,15 +105,19 @@ Solution iterativeDeepeningSearch(SokobanNode* node) {
 // To Do: 1. Metric to detect failure states(from where no solution is possible), 
 //        2. Need to implement backtracking when failure occurs.
 //        3. Find best move for a given state
-Solution breadthFirstSearch(SokobanNode* node) {
-	Solution solution;
+Solution breadthFirstSearch(SokobanNode* node, bool graphSearch = false) {
+    Solution solution;
     queue<SokobanNode*> frontier;
+    set< size_t > reached;
     if(node->state->isGoalState()){
     	solution.goalFound = true;
         solution.goalNode = node;
         return solution;
     }
-	frontier.push(node);    
+	frontier.push(node);
+    if( graphSearch ) {
+        reached.insert(node->state->hashKey);
+    }
 	SokobanNode* current;
     while(!frontier.empty()) {
     	current = frontier.front();
@@ -112,17 +128,30 @@ Solution breadthFirstSearch(SokobanNode* node) {
 		        solution.goalNode = child_node;
 		        return solution;
         	}
-            else
+            else {
+                if (graphSearch) {
+                    if (reached.find(child_node->state->hashKey) == reached.end()) {
+                        reached.insert(child_node->state->hashKey);
+                    }
+                    else {
+                        continue;
+                    }
+                }
                 frontier.push(child_node);
+            }
         }
     }
     return solution;
 }
 
-Solution uniformCostSearch(SokobanNode* node) {
+Solution uniformCostSearch(SokobanNode* node, bool graphSearch = false) {
 	Solution solution;
     priority_queue < SokobanNode*, vector<SokobanNode*>, Compare> frontier;
+    map< size_t, SokobanNode*> reached;
     frontier.push(node);
+    if( graphSearch ) {
+        reached[node->state->hashKey] = node;
+    }    
     while(!frontier.empty()){
         SokobanNode* current = frontier.top();
         frontier.pop();
@@ -134,9 +163,17 @@ Solution uniformCostSearch(SokobanNode* node) {
         }
 
         for(auto child_node : current->getChildrenNode()){
-            // if(child_node.state != any element.state in frontier)
-            // Use Hashing to store states
-            // TODO: Push Hash states to an unordered_set  
+            if (graphSearch) {
+                if (reached.find(child_node->state->hashKey) == reached.end()) {
+                    reached[child_node->state->hashKey] = child_node;
+                }
+                else if (child_node->pathCost < reached[child_node->state->hashKey]->pathCost) {
+                    reached[child_node->state->hashKey] = child_node;
+                }
+                else {
+                    continue;
+                }
+            }
             frontier.push(child_node);        
         }
     }
@@ -149,20 +186,21 @@ bool is_cycle(SokobanNode* node)
 	SokobanNode* parent = node;
 	do {
 		parent = parent->parentNode;
-		if(same_state(node,parent)){
+        // if(same_state(node,parent)){
+		if((*(node->state)) == (*(parent->state))){
 			return true;
 		}
 	} while(!parent->startNode);
 	return false;
 }
 
-bool same_state(SokobanNode* node, SokobanNode* parent)
-{
-	// TODO: update this function once hash is defined
-	if(node->state->pos != parent->state->pos) return false;
-	vector<set<int>> nodeBoxes = node->state->box_adj, parentBoxes = parent->state->box_adj;
-    for(int x = 0; x < node->state->board->n_rows; x++) {
-        if(nodeBoxes[x] != parentBoxes[x]) return false;
-    }
-	return true;
-}
+// bool same_state(SokobanNode* node, SokobanNode* parent)
+// {
+// 	// TODO: update this function once hash is defined
+// 	if(node->state->pos != parent->state->pos) return false;
+// 	vector<set<int>> nodeBoxes = node->state->box_adj, parentBoxes = parent->state->box_adj;
+//     for(int x = 0; x < node->state->board->n_rows; x++) {
+//         if(nodeBoxes[x] != parentBoxes[x]) return false;
+//     }
+// 	return true;
+// }

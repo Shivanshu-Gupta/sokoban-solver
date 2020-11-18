@@ -33,6 +33,7 @@ struct SokobanState {
     Coord pos;
     SokobanBoard* board;
     vector<set<int>> box_adj;
+    size_t hashKey = 0;
 
     inline bool isWall(Coord p) { return board->board[p.x][p.y] == '#'; }
     inline bool isGoal(Coord p) {
@@ -51,6 +52,7 @@ struct SokobanState {
     optional<SokobanState*> doMove(Move move);
     inline bool isValidMove(Move move) { return doMove(move).has_value(); };
     bool isGoalState();
+    void setHashKey();
 
     // Input
     void loadInputFile(const string &inputPath);

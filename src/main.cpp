@@ -27,7 +27,7 @@ void hashingExample() {
 }
 
 int main() {
-    hashingExample();
+    // hashingExample();
 
     SokobanState state;
     // state.loadInputFile("../samples/sokoban00.txt");
@@ -40,11 +40,20 @@ int main() {
     initialNode->startNode = true;
 
     // Start Algorithms here...
-    // auto nextNode = depthLimitedSearch(initialNode, 10);
-    // auto nextNode = depthFirstSearch(initialNode);
-    // auto nextNode = iterativeDeepeningSearch(initialNode);    
-    // auto nextNode = breadthFirstSearch(initialNode);
-    auto nextNode = uniformCostSearch(initialNode);   
+
+    // Tree search algos
+    // auto nextNode = depthLimitedSearch(initialNode, 10, false);
+    // auto nextNode = depthFirstSearch(initialNode, false);
+    // auto nextNode = iterativeDeepeningSearch(initialNode, false);
+    // auto nextNode = breadthFirstSearch(initialNode, false);
+    // auto nextNode = uniformCostSearch(initialNode, false);
+
+    // Graph search algos
+    // auto nextNode = depthLimitedSearch(initialNode, 10, true);
+    // auto nextNode = depthFirstSearch(initialNode, true);
+    // auto nextNode = iterativeDeepeningSearch(initialNode, true);
+    // auto nextNode = breadthFirstSearch(initialNode, true);
+    auto nextNode = uniformCostSearch(initialNode, true);
 
     //Print the solution
     if (nextNode.goalFound) {

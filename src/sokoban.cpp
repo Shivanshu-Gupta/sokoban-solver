@@ -55,11 +55,15 @@ optional<SokobanState*> SokobanState::doMove(Move move) {
         nextState->pos = nextPos;
         nextState->box_adj[nextPos.x].erase(nextPos.y);
         nextState->box_adj[next2Pos.x].insert(next2Pos.y);
+        nextState->setHashKey();
+        // cout<< nextState->hashKey <<endl;
         return nextState;
     }
 
     SokobanState* nextState = new SokobanState(*this);
     nextState->pos = nextPos;
+    nextState->setHashKey();
+    // cout<< nextState->hashKey <<endl;
     return nextState;
 }
 
@@ -87,6 +91,11 @@ vector<SokobanNode*> SokobanNode::getChildrenNode() {
         }
     }
     return children;
+}
+
+void SokobanState::setHashKey() {
+    hash<SokobanState> hasher;
+    hashKey = hasher(*this);
 }
 
 void SokobanState::loadInputFile(const string &inputPath) {
@@ -129,6 +138,8 @@ void SokobanState::loadInputFile(const string &inputPath) {
             b->goal_adj[x].insert(y);
         } else throw "invalid board";
     }
+    setHashKey();
+    // cout<< hashKey <<endl;
 }
 
 void SokobanState::loadBoardFile(const string &inputPath) {
@@ -161,6 +172,8 @@ void SokobanState::loadBoardFile(const string &inputPath) {
     }
     b->n_rows = x;
     b->n_cols = y;
+    setHashKey();
+    // cout<< hashKey <<endl;
 }
 
 pair<int, int> SokobanState::readCoords(ifstream &fin) {
