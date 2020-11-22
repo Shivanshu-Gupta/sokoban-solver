@@ -2,44 +2,108 @@
 // Created by Shivanshu Gupta on 31/10/20.
 //
 
+#include <unordered_set>
+
 #include "sokoban.h"
+#include "algos.hpp"
 
 extern unordered_map<Move, string> move_names;
 
+void hashingExample() {
+    cout << "========================HashingExample========================" << endl;
+    SokobanState state;
+    state.loadBoardFile("../samples/input03.txt");
+    cout << state;
+
+    hash<SokobanState> hasher;
+    size_t hash = hasher(state);
+    cout << hash << endl;
+
+    unordered_set<SokobanState> reached;
+    reached.insert(state);
+    for(const auto& s: reached) cout << s;
+    cout << "===============================================================" << endl;
+    cout << endl;
+}
+
 int main() {
+    hashingExample();
+
     SokobanState state;
     // state.loadInputFile("../samples/sokoban00.txt");
-     state.loadInputFile("../samples/sokoban01.txt");
-    // state.outputBoard(cout);
-    // cout << endl;
-    // state.pos.print();
-
-    // state.loadBoardFile("../samples/input00.txt");
-//    state.loadBoardFile("../samples/input01.txt");
-    // state.outputBoard(cout);
-    // cout << endl;
-
-    // for(Move m: {U, D, L, R}) {
-    //     auto nextState = state.doMove(m);
-    //     if (nextState.has_value()) {
-    //         cout << move_names[m] << ':' << endl;
-    //         nextState->outputBoard(cout);
-    //     }
-    // }
-    // cout << endl;
+    state.loadBoardFile("../samples/input03.txt");
+    cout << state;
 
     // Initialize the Problem Node
-    SokobanNode initialNode;
-    initialNode.state = &state;
+    SokobanNode* initialNode = new SokobanNode();
+    initialNode->state = &state;
+    initialNode->startNode = true;
+    
+    
 
-    // Check individual Functions
+    // Start Algorithms here...
+
+    // Tree search algos
+    // auto nextNode = depthLimitedSearch(initialNode, 10, false);
+    // auto nextNode = depthFirstSearch(initialNode, false);
+    // auto nextNode = iterativeDeepeningSearch(initialNode, false);
+    // auto nextNode = breadthFirstSearch(initialNode, false);
+    // auto nextNode = uniformCostSearch(initialNode, false);
+    //   auto nextNode = aStarSearch(initialNode, false); 
+    // auto nextNode = greedyBFS(initialNode, false);
+
+    // Graph search algos
+    // auto nextNode = depthLimitedSearch(initialNode, 10, true);
+    // auto nextNode = depthFirstSearch(initialNode, true);
+    // auto nextNode = iterativeDeepeningSearch(initialNode, true);
+    // auto nextNode = breadthFirstSearch(initialNode, true);
+    // auto nextNode = uniformCostSearch(initialNode, true);
+       auto nextNode = aStarSearch(initialNode, true);
+    //   auto nextNode = greedyBFS(initialNode, true); 
+
+    //Print the solution
+    if (nextNode.goalFound) {
+        SokobanNode* current = nextNode.goalNode;
+        cout << "Outputting path: ";
+        vector<Move> pathToGoal;
+        while(!(current->startNode)) {
+            pathToGoal.push_back(current->parentMove);
+            current = current->parentNode;
+        }
+        reverse(pathToGoal.begin(),pathToGoal.end());
+        for(Move m : pathToGoal)
+            cout << move_names[m] << ", ";
+        cout<<"done... Terminating... \n";
+    }
+    else { // No solution found
+        cout << "The algorithm couldn't find the solution\n";
+    }
+}
+
+
+
+    /*
+    {     
+        // check if movenames and outputBoard functions work
+        for(Move m: {U, D, L, R}) {
+            auto nextState = state.doMove(m);
+            if (nextState.has_value()) {
+                cout << move_names[m] << ':' << endl;
+                nextState->outputBoard(cout);
+            }
+        }
+        cout << endl;
+    }
+    */
+
+    /*
+    // Check individual Functions : optional, doMove() and pos.print()
     for(Move m: {U, D, L, R}) {
         auto nextNode = initialNode.doMove(m);
         if (nextNode.has_value()) {
             auto node = nextNode.value();
             cout << move_names[node.parentMove] << ':' << endl;
             cout << node.depth << ':' << endl;
-
             //----------------------------------
             // The following lines are not working properly
             // Need to check the doMove function for SokobanNode
@@ -49,36 +113,4 @@ int main() {
             //----------------------------------
         }
     }
-
-    // Start Algorithms here...
-
-    // DFS,DLS,IDS
-    // Once previous errors are removed need to check these 
-    // DFS will break down as the is_cycle() function is not written yet
-    // DLS and IDS should work better, couldn't check
-    // auto nextNode = initialNode->depthLimitedSearch(0);
-    // auto nextNode = initialNode->depthFirstSearch();
-    // auto nextNode = initialNode->iterativeDeepeningSearch();
-    
-    // Run BFS and UCS on the initial node
-    auto nextNode = initialNode.breadthFirstSearch();
-    // auto nextNode = initialNode.uniformCostSearch();	  
-    
-    //Print the solution
-    if (nextNode.has_value()) {
-        SokobanNode* sNode = &(nextNode.value());
-        (sNode->state)->outputBoard(cout);
-        vector<Move> pathToGoal;
-        do {
-            pathToGoal.push_back(sNode->parentMove);
-            sNode = sNode->parentNode;
-        } while(sNode != NULL);
-        reverse(pathToGoal.begin(),pathToGoal.end());
-        for(Move m : pathToGoal)
-        cout << move_names[m] << ':' << endl;
-    }
-    else { // No solution found
-        cout << "The algorithm couldn't find the solution\n";
-    } 
-}
-
+    */
