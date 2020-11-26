@@ -7,3 +7,5 @@
 1. Sokoban Solver by James Hyun Seung Hong - [github](https://github.com/jameshong92/sokoban-solver)
 1. Boxoban Level by Deepmind - [github](https://github.com/deepmind/boxoban-levels)
 1. OpenAI Gym Environemnt: [github](https://github.com/mpSchrader/gym-sokoban)
+1. A Sokoban Solver Using Multiple Search Algorithms and Q-learning: [website](https://home.cse.ust.hk/~yqsong/teaching/comp3211/projects/2017Fall/G14.pdf)
+1. Sokoban Solver using Q-Learning: [github](https://github.com/zeertzjq/SokobanQLearning)
