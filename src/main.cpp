@@ -32,8 +32,9 @@ int main(int argc, char** argv) {
     string input_file = argv[1];
     SokobanState state;
     // state.loadInputFile("../samples/sokoban00.txt");
+    state.loadBoardFile("../samples/test_cases/n6/n6b1_1.txt");
     //state.loadBoardFile("../samples/input03.txt");
-    state.loadBoardFile(input_file);
+    // state.loadBoardFile(input_file);
     cout << state;
 
     // Initialize the Problem Node
@@ -73,6 +74,7 @@ int main(int argc, char** argv) {
             current = current->parentNode;
         }
         reverse(pathToGoal.begin(),pathToGoal.end());
+        cout << pathToGoal.size() << " ";
         for(Move m : pathToGoal)
             cout << move_names[m] << ", ";
         cout<<"done... Terminating... \n";
@@ -80,6 +82,11 @@ int main(int argc, char** argv) {
     else { // No solution found
         cout << "The algorithm couldn't find the solution\n";
     }
+
+    //Print algorithm characteristics
+    cout << "max_frontier_size = " << nextNode.max_frontier_size << endl;
+    cout << "max_reached_size = " << nextNode.max_reached_size << endl;
+    cout << "num_nodes_explored = " << nextNode.num_nodes_explored << endl;  
 }
 
 

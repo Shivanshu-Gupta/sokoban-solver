@@ -61,7 +61,7 @@ bool getComparisonResult(T x, T y, int flag = 0)
        }
 } 
 
-double SokobanState::computeHeuristicPerBox(Coord box_pos){
+double SokobanState::computeHeuristicPerBox(Coord box_pos) {
 	
 	SokobanBoard* board_ptr = board;
 	double min_dist = numeric_limits<double>::max();

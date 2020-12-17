@@ -23,7 +23,8 @@ struct Solution {
 	SokobanNode* goalNode;
 	// Algorithm & Solution charecteristics
 	int max_frontier_size = 0;
-	int num_nodes_reached = 0;
+	int max_reached_size = 0;
+	int num_nodes_explored = 0;
 	// TODO: Define other relevant heuristics (required to gauge performance measures) here
 };
 
@@ -58,7 +59,10 @@ Solution depthLimitedSearch(SokobanNode* node, int limit = -1, bool graphSearch 
     while(!frontier.empty()) {
         current = frontier.top();
     	// current->state->outputBoard(cout);
+        if(solution.max_frontier_size < frontier.size())
+            solution.max_frontier_size = frontier.size();
         frontier.pop();
+        solution.num_nodes_explored+=1;
         if((current->state)->isGoalState()) {
         	solution.goalFound = true;
         	solution.cutoff = false;
@@ -83,7 +87,7 @@ Solution depthLimitedSearch(SokobanNode* node, int limit = -1, bool graphSearch 
 	        }        	
         }
     }
-
+    solution.max_reached_size = reached.size();
     return solution;
 }
 
@@ -114,6 +118,7 @@ Solution breadthFirstSearch(SokobanNode* node, bool graphSearch = false) {
     if(node->state->isGoalState()){
     	solution.goalFound = true;
         solution.goalNode = node;
+        solution.max_reached_size = reached.size();
         return solution;
     }
 	frontier.push(node);
@@ -123,11 +128,15 @@ Solution breadthFirstSearch(SokobanNode* node, bool graphSearch = false) {
 	SokobanNode* current;
     while(!frontier.empty()) {
     	current = frontier.front();
+        if(solution.max_frontier_size < frontier.size())
+            solution.max_frontier_size = frontier.size();
         frontier.pop();
+        solution.num_nodes_explored+=1;
         for(auto child_node : current->getChildrenNode()){
             if((child_node->state)->isGoalState()) {
 		    	solution.goalFound = true;
 		        solution.goalNode = child_node;
+                solution.max_reached_size = reached.size();
 		        return solution;
         	}
             else {
@@ -143,6 +152,7 @@ Solution breadthFirstSearch(SokobanNode* node, bool graphSearch = false) {
             }
         }
     }
+    solution.max_reached_size = reached.size();
     return solution;
 }
 
@@ -156,11 +166,15 @@ Solution uniformCostSearch(SokobanNode* node, bool graphSearch = false) {
     }    
     while(!frontier.empty()){
         SokobanNode* current = frontier.top();
+        if(solution.max_frontier_size < frontier.size())
+        solution.max_frontier_size = frontier.size();  
         frontier.pop();
+        solution.num_nodes_explored+=1;
         
         if((current->state)->isGoalState()) {
         	solution.goalFound = true;
             solution.goalNode = current;
+            solution.max_reached_size = reached.size();
             return solution;
         }
 
@@ -176,9 +190,10 @@ Solution uniformCostSearch(SokobanNode* node, bool graphSearch = false) {
                     continue;
                 }
             }
-            frontier.push(child_node);        
-        }
+            frontier.push(child_node);
+        }      
     }
+    solution.max_reached_size = reached.size();
     return solution;
 }
 
@@ -197,11 +212,15 @@ Solution aStarSearch(SokobanNode* node, bool graphSearch = false) {
     }    
     while(!frontier.empty()){
         SokobanNode* current = frontier.top();
+        if(solution.max_frontier_size < frontier.size())
+            solution.max_frontier_size = frontier.size();  
         frontier.pop();
+        solution.num_nodes_explored+=1;
         
         if((current->state)->isGoalState()) {
         	solution.goalFound = true;
             solution.goalNode = current;
+            solution.max_reached_size = reached.size();
             return solution;
         }
 
@@ -217,9 +236,10 @@ Solution aStarSearch(SokobanNode* node, bool graphSearch = false) {
                     continue;
                 }
             }
-            frontier.push(child_node);        
+            frontier.push(child_node);    
         }
     }
+    solution.max_reached_size = reached.size();
     return solution;
 }
 
@@ -239,11 +259,15 @@ Solution greedyBFS(SokobanNode* node, bool graphSearch = false) {
     }    
     while(!frontier.empty()){
         SokobanNode* current = frontier.top();
+        if(solution.max_frontier_size < frontier.size())
+            solution.max_frontier_size = frontier.size();
         frontier.pop();
+        solution.num_nodes_explored+=1;
         
         if((current->state)->isGoalState()) {
         	solution.goalFound = true;
             solution.goalNode = current;
+            solution.max_reached_size = reached.size();
             return solution;
         }
 
@@ -259,9 +283,10 @@ Solution greedyBFS(SokobanNode* node, bool graphSearch = false) {
                     continue;
                 }
             }
-            frontier.push(child_node);        
+            frontier.push(child_node);
         }
     }
+    solution.max_reached_size = reached.size();
     return solution;
 }
 

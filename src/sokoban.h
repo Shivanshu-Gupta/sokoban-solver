@@ -97,7 +97,7 @@ struct Compare {
 template <class T>
 inline void hash_combine(std::size_t& seed, const T& v) {
     hash<T> hasher;
-    //cout << "Seeed: " << seed << endl;
+    //cout << "Seed: " << seed << endl;
     seed ^= hasher(v) + 0x9e3779b9 + (seed<<6) + (seed>>2);
     //cout << "Hasher: " << seed << " " << hasher(v) << endl;
 }
