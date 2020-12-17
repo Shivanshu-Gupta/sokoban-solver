@@ -61,7 +61,7 @@ bool getComparisonResult(T x, T y, int flag = 0)
        }
 } 
 
-double SokobanState::computeHeuristic(){
+double SokobanState::computeHeuristicPerBox(Coord box_pos){
 	
 	SokobanBoard* board_ptr = board;
 	double min_dist = numeric_limits<double>::max();
@@ -71,13 +71,32 @@ double SokobanState::computeHeuristic(){
 	        Coord goal_pos;
 	    	goal_pos.x = x;
 	    	goal_pos.y = y;
-	    	double temp_val = calculateDistance(pos , goal_pos);
+	    	double temp_val = calculateDistance(box_pos , goal_pos);
 	    	min_dist = (getComparisonResult(temp_val, min_dist)) ? temp_val : min_dist;
            }
            x++;
        }   
         return min_dist;
 }
+
+double SokobanState::computeHeuristic(){
+	
+	SokobanBoard* board_ptr = board;
+	double heuristic_cost = 0;
+	int x = 0;
+	while(x < board_ptr->n_rows){
+	    for(int y: box_adj[x]) {
+	        Coord box_pos;
+	    	box_pos.x = x;
+	    	box_pos.y = y;
+	    	heuristic_cost += computeHeuristicPerBox(box_pos);
+           }
+           x++;
+       }   
+        return heuristic_cost;
+	
+}
+
 
 optional<SokobanState*> SokobanState::doMove(Move move) {
     SokobanBoard*& b = board;

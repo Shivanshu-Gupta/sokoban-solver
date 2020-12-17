@@ -53,6 +53,7 @@ struct SokobanState {
     inline bool isValidMove(Move move) { return doMove(move).has_value(); };
     bool isGoalState();
     void setHashKey();
+    double computeHeuristicPerBox(Coord box_pos); //Returns minimum of the distances between the box and every goal location
     double computeHeuristic(); //Calculates the heuristic value for this node
 
     // Input

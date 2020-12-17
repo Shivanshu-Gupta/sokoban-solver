@@ -26,12 +26,14 @@ void hashingExample() {
     cout << endl;
 }
 
-int main() {
-    hashingExample();
-
+int main(int argc, char** argv) {
+    //hashingExample();
+    
+    string input_file = argv[1];
     SokobanState state;
     // state.loadInputFile("../samples/sokoban00.txt");
-    state.loadBoardFile("../samples/input03.txt");
+    //state.loadBoardFile("../samples/input03.txt");
+    state.loadBoardFile(input_file);
     cout << state;
 
     // Initialize the Problem Node
