@@ -1,5 +1,16 @@
 # Sokoban Solver
 
+## Building
+```bash
+$ g++ -std=c++2a src/*.h src/*.cpp src/*.hpp -o main
+```
+
+## Running
+```bash
+$ ./main <path_input_file>
+```
+For eg. `./main samples/input01.txt`
+
 ## References
 1. [Sokoban Wiki](http://www.sokobano.de/wiki/index.php?title=Solver)
 1. Sokoban Solver (Groundai) - [report](https://www.groundai.com/project/ai-in-game-playing-sokoban-solver/1) | [codalab](https://worksheets.codalab.org/worksheets/0x2412ae8944eb449db74ce9bc0b9463fe/)
