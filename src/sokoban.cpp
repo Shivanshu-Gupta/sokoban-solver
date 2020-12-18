@@ -25,11 +25,18 @@ unordered_map<Move, Coord> moves = {
         {R, {0, 1}},
 };
 
+// unordered_map<Move, string> move_names = {
+//         {U, "↑"},
+//         {D, "↓"},
+//         {L, "←"},
+//         {R, "→"},
+// };
+
 unordered_map<Move, string> move_names = {
-        {U, "↑"},
-        {D, "↓"},
-        {L, "←"},
-        {R, "→"},
+        {U, "U"},
+        {D, "D"},
+        {L, "L"},
+        {R, "R"},
 };
 
 bool SokobanState::isGoalState() {

@@ -43,7 +43,7 @@ bool same_state(SokobanNode* node, SokobanNode* parent);
 // TODO: Hash, A* Heuristics and other helper functions, as needed, to be added
 
 // Define functions for each algorithm
-// TODO: Should update all functions with relevant values of Algorithm & Solution charecteristics 
+// TODO: Should update all functions with relevant values of Algorithm & Solution charecteristics
 
 Solution depthLimitedSearch(SokobanNode* node, int limit = -1, bool graphSearch = false) {
 	// TODO: Destruct pointers
@@ -84,7 +84,7 @@ Solution depthLimitedSearch(SokobanNode* node, int limit = -1, bool graphSearch 
                     }
                 }
 	            frontier.push(child_node);
-	        }        	
+	        }
         }
     }
     solution.max_reached_size = reached.size();
@@ -108,7 +108,7 @@ Solution iterativeDeepeningSearch(SokobanNode* node, bool graphSearch = false) {
 // Copied comments from previous place
 // @Radhit, check if the current code overcomes these problems
 // Breadth First Search(Tree Search) [Gets Killed as no bound on termination]
-// To Do: 1. Metric to detect failure states(from where no solution is possible), 
+// To Do: 1. Metric to detect failure states(from where no solution is possible),
 //        2. Need to implement backtracking when failure occurs.
 //        3. Find best move for a given state
 Solution breadthFirstSearch(SokobanNode* node, bool graphSearch = false) {
@@ -163,14 +163,14 @@ Solution uniformCostSearch(SokobanNode* node, bool graphSearch = false) {
     frontier.push(node);
     if( graphSearch ) {
         reached[node->state->hashKey] = node;
-    }    
+    }
     while(!frontier.empty()){
         SokobanNode* current = frontier.top();
         if(solution.max_frontier_size < frontier.size())
-        solution.max_frontier_size = frontier.size();  
+        solution.max_frontier_size = frontier.size();
         frontier.pop();
         solution.num_nodes_explored+=1;
-        
+
         if((current->state)->isGoalState()) {
         	solution.goalFound = true;
             solution.goalNode = current;
@@ -191,7 +191,7 @@ Solution uniformCostSearch(SokobanNode* node, bool graphSearch = false) {
                 }
             }
             frontier.push(child_node);
-        }      
+        }
     }
     solution.max_reached_size = reached.size();
     return solution;
@@ -205,18 +205,18 @@ Solution aStarSearch(SokobanNode* node, bool graphSearch = false) {
     frontier.push(node);
     node->heuristicCost = node->state->computeHeuristic();
     node->functionCost = node->pathCost + node->heuristicCost;
-    node->useHeuristicCost = true; 
-    
+    node->useHeuristicCost = true;
+
     if( graphSearch ) {
         reached[node->state->hashKey] = node;
-    }    
+    }
     while(!frontier.empty()){
         SokobanNode* current = frontier.top();
         if(solution.max_frontier_size < frontier.size())
-            solution.max_frontier_size = frontier.size();  
+            solution.max_frontier_size = frontier.size();
         frontier.pop();
         solution.num_nodes_explored+=1;
-        
+
         if((current->state)->isGoalState()) {
         	solution.goalFound = true;
             solution.goalNode = current;
@@ -236,7 +236,7 @@ Solution aStarSearch(SokobanNode* node, bool graphSearch = false) {
                     continue;
                 }
             }
-            frontier.push(child_node);    
+            frontier.push(child_node);
         }
     }
     solution.max_reached_size = reached.size();
@@ -252,18 +252,18 @@ Solution greedyBFS(SokobanNode* node, bool graphSearch = false) {
     node->heuristicCost = node->state->computeHeuristic();
     node->functionCost = node->heuristicCost;
     node->usePathCost = false;
-    node->useHeuristicCost = true; 
-    
+    node->useHeuristicCost = true;
+
     if( graphSearch ) {
         reached[node->state->hashKey] = node;
-    }    
+    }
     while(!frontier.empty()){
         SokobanNode* current = frontier.top();
         if(solution.max_frontier_size < frontier.size())
             solution.max_frontier_size = frontier.size();
         frontier.pop();
         solution.num_nodes_explored+=1;
-        
+
         if((current->state)->isGoalState()) {
         	solution.goalFound = true;
             solution.goalNode = current;

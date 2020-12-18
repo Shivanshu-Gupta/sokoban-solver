@@ -2,14 +2,16 @@
 
 ## Building
 ```bash
-$ g++ -std=c++2a src/*.h src/*.cpp src/*.hpp -o main
+$ g++ -std=c++2a src/coord.hpp src/sokoban.h src/sokoban.cpp src/algos.hpp src/main.cpp -o main
 ```
 
 ## Running
 ```bash
-$ ./main <path_input_file>
+$ ./main <path_input_file> <algo> <variant>
 ```
-For eg. `./main samples/input01.txt`
+Where `algo` should be one of `DFS`, `IDS`, `BFS`, `UCS`, `Astar` or `GBFS` and variant should be one of `tree` and `graph`.
+
+Example: `./main samples/input01.txt Astar tree`
 
 ## References
 1. [Sokoban Wiki](http://www.sokobano.de/wiki/index.php?title=Solver)
